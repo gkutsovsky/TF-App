@@ -1,0 +1,65 @@
+AzureDevOpsMasterRole:
+  Type: "AWS::IAM::Role"
+  Properties:
+    AssumeRolePolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+              - ec2.amazonaws.com
+          Action:
+            - "sts:AssumeRole"
+    ManagedPolicyArns:
+      - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+    Policies:
+      - PolicyName: "Allow-Assume-Role"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - sts:AssumeRole
+              Resource: arn:aws:iam::*:role/AzureDevOpsMemberRole
+      - PolicyName: "Allow-Code-Artifact"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - sts:GetServiceBearerToken
+              Resource: "*"
+            - Effect: "Allow"
+              Action:
+                - codeartifact:GetAuthorizationToken
+                - codeartifact:ReadFromRepository
+                - codeartifact:GetRepositoryEndpoint
+              Resource:
+                - arn:aws:codeartifact:us-east-1:755647183466:domain/devops-core
+                - arn:aws:codeartifact:*:755647183466:repository/*/*
+      - PolicyName: "ReadUploadECR"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - ecr:DescribeImageScanFindings
+                - ecr:GetLifecyclePolicyPreview
+                - ecr:GetDownloadUrlForLayer
+                - ecr:GetAuthorizationToken
+                - ecr:ListTagsForResource
+                - ecr:UploadLayerPart
+                - ecr:ListImages
+                - ecr:PutImage
+                - ecr:UntagResource
+                - ecr:BatchGetImage
+                - ecr:CompleteLayerUpload
+                - ecr:DescribeImages
+                - ecr:TagResource
+                - ecr:InitiateLayerUpload
+                - ecr:BatchCheckLayerAvailability
+                - ecr:GetRepositoryPolicy
+                - ecr:GetLifecyclePolicy
+              Resource: "*"
+    RoleName: AzureDevOpsMasterRole
+    Description: EC2 IAM role for SSM access
